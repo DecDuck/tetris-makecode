@@ -1,3 +1,19 @@
+let difficulty = 0
+let DIFFICULTYOFFSET = 13000
+let locked = false
+let y = 0
+let wait = 0
+let points = 0
+let current_difficulty = getDifficulty(points);
+let BRIGHTNESS = 50
+let x = 0
+let columns: { [key: number]: number } = {};
+x = Math.randomRange(0, 4)
+let multithreading = parseInt(control.hardwareVersion()) == 2
+BRIGHTNESS = 50
+current_difficulty = getDifficulty(points)
+let MAX_DIFFICULTY = getDifficulty(0)
+let speed = 0.85
 function flashLine(y: number) {
     wait = 70000
     for (let j = 0; j <= 4; j++) {
@@ -20,6 +36,7 @@ function clearLine() {
         columns[m]--;
     }
     points += 1
+    current_difficulty = getDifficulty(points);
     render()
 }
 function buttonB() {
@@ -30,10 +47,11 @@ function buttonB() {
     x = Math.min(x + 1, 4)
 }
 function wait_with_input(length: number) {
-    stepSize = 5000
+    let waited = 0;
+    let stepSize = 100;
     while (waited < length) {
-        control.waitMicros(stepSize)
-        waited += stepSize
+        control.waitMicros(stepSize);
+        waited += stepSize;
         if (!(locked)) {
             if (input.buttonIsPressed(Button.A)) {
                 buttonA()
@@ -51,21 +69,21 @@ function wait_with_input(length: number) {
     }
 }
 function getDifficulty(count: number) {
-    DIFFICULTYOFFSET = 300000
-    difficulty = 1.03 ** (0 - count) * DIFFICULTYOFFSET
+    difficulty = 1.03 ** (count) * DIFFICULTYOFFSET
     return difficulty
 }
 function block() {
+    x = Math.randomRange(0, 4);
+    let pixels: number[][] = []
     if (columns[x] > 4) {
         return
     }
-    if (y < 5 - 0) {
-        let pixels: number[][] = []
+    while (y < (4 - (columns[x] || 0))) {
         for (let i = 0; i <= pixels.length - 1; i++) {
             led.unplot(pixels[i][0], pixels[i][1])
         }
         led.plotBrightness(x, y, BRIGHTNESS)
-        pixels.push([x, y])
+        pixels.push([x,y]);
         y += 1
         if (true) {
             // !multithreading) {
@@ -74,12 +92,10 @@ function block() {
             control.waitMicros(current_difficulty)
         }
         render()
-    } else {
-        columns[x] = columns[x] + 1 || 1
-        render()
-        x = Math.randomRange(0, 4)
-        y = 0
     }
+    columns[x] = columns[x] + 1 || 1;
+    y = 0;
+    render();
 }
 function buttonA() {
     if (5 - y < columns[x - 1]) {
@@ -89,8 +105,9 @@ function buttonA() {
     x = Math.max(x - 1, 0)
 }
 function checkDead() {
-    for (let n = 0; n <= Object.keys(columns).length - 1; n++) {
-        if (columns[n] > 4) {
+    let keys: string[] = Object.keys(columns);
+    for (let n = 0; n < keys.length; n++) {
+        if (columns[parseInt(keys[n])] > 4) {
             return true
         }
     }
@@ -104,24 +121,6 @@ function render() {
         }
     }
 }
-let difficulty = 0
-let DIFFICULTYOFFSET = 0
-let locked = false
-let waited = 0
-let stepSize = 0
-let y = 0
-let wait = 0
-let points = 0
-let current_difficulty = 0
-let BRIGHTNESS = 0
-let x = 0
-let columns: { [key: number]: number } = {};
-x = Math.randomRange(0, 4)
-let multithreading = parseInt(control.hardwareVersion()) == 2
-BRIGHTNESS = 50
-current_difficulty = getDifficulty(points)
-let MAX_DIFFICULTY = getDifficulty(0)
-let speed = 0.85
 if (false) {
     input.onButtonPressed(Button.A, buttonA);
     input.onButtonPressed(Button.B, buttonB);
